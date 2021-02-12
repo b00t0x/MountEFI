@@ -12,15 +12,15 @@ data['AllDisksAndPartitions'].each do |disk|
         # get parrent device label
         /(?<label>disk\d+)s/ =~ disk['APFSPhysicalStores'].first['DeviceIdentifier']
         # get apfs volume name
-        targets[label] += disk['APFSVolumes'].map{ |vol| vol['VolumeName'] }.select{ |name| name !~ /^(.+- Data|Preboot|Recovery|VM)$/ }
+        targets[label] += disk['APFSVolumes'].map{ |vol| vol['VolumeName'] }.select{ |name| name !~ /^(.+- Data|Preboot|Recovery|VM|Update)$/ }
     else
         # physical disk
         next unless disk['Partitions'].first['Content'] == 'EFI'
         label = disk['DeviceIdentifier']
         # get partition name
-        targets[label] += disk['Partitions'][1..-1].map{ |part| part['VolumeName'] }.compact
+        targets[label] += disk['Partitions'][1..-1].map{ |part| part['VolumeName'] }
     end
 end
 targets.each do |label, target|
-    puts "#{label}: #{target.join(', ')}"
+    puts "#{label}: #{target.compact.uniq.join(', ')}"
 end
